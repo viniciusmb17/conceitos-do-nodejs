@@ -107,7 +107,7 @@ app.patch(
 
     todo.done = true
 
-    return response.status(201).send()
+    return response.status(201).json(todo)
   }
 )
 
