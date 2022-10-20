@@ -31,7 +31,7 @@ function checkExistsUserTodo(request, response, next) {
 
   if (!todo) {
     return response
-      .status(400)
+      .status(404)
       .json({ error: `The TODO ID '${id}' does not exist!` })
   }
 
@@ -94,7 +94,7 @@ app.put(
     todo.title = title
     todo.deadline = new Date(deadline)
 
-    return response.status(201).send()
+    return response.status(201).json(todo)
   }
 )
 
@@ -118,11 +118,11 @@ app.delete(
   (request, response) => {
     const { todo, user } = request
 
-    const todoIndex = user.todos.indexOf(todo)
+    const todoIndex = user.todos.findIndex(todoFind => todoFind.id === todo.id)
 
     user.todos.splice(todoIndex, 1)
 
-    return response.status(201).send()
+    return response.status(204).send()
   }
 )
 
