@@ -89,7 +89,7 @@ app.put(
   checkExistsUserTodo,
   (request, response) => {
     const { todo } = request
-  const { title, deadline } = request.body
+    const { title, deadline } = request.body
 
     todo.title = title
     todo.deadline = new Date(deadline)
@@ -107,16 +107,23 @@ app.patch(
 
     todo.done = true
 
-  return response.status(201).send()
+    return response.status(201).send()
   }
 )
 
-app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
-})
+app.delete(
+  '/todos/:id',
+  checksExistsUserAccount,
+  checkExistsUserTodo,
+  (request, response) => {
+    const { todo, user } = request
 
-app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
-})
+    const todoIndex = user.todos.indexOf(todo)
+
+    user.todos.splice(todoIndex, 1)
+
+    return response.status(201).send()
+  }
+)
 
 module.exports = app
