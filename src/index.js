@@ -24,6 +24,22 @@ function checksExistsUserAccount(request, response, next) {
   return next()
 }
 
+function checkExistsUserTodo(request, response, next) {
+  const { user } = request
+  const { id } = request.params
+  const todo = user.todos.find((todo) => id === todo.id)
+
+  if (!todo) {
+    return response
+      .status(400)
+      .json({ error: `The TODO ID '${id}' does not exist!` })
+  }
+
+  request.todo = todo
+
+  return next()
+}
+
 app.post('/users', (request, response) => {
   const { name, username } = request.body
 
@@ -67,24 +83,33 @@ app.post('/todos', checksExistsUserAccount, (request, response) => {
   return response.status(201).json(todo)
 })
 
-app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
-  const { user } = request
-  const { id } = request.params
+app.put(
+  '/todos/:id',
+  checksExistsUserAccount,
+  checkExistsUserTodo,
+  (request, response) => {
+    const { todo } = request
   const { title, deadline } = request.body
 
-  const todo = user.todos.find((todo) => id === todo.id)
+    todo.title = title
+    todo.deadline = new Date(deadline)
 
-  if (!todo) {
-    return response
-      .status(400)
-      .json({ error: `The TODO ID '${id}' does not exist!` })
+    return response.status(201).send()
   }
+)
 
-  todo.title = title
-  todo.deadline = new Date(deadline)
+app.patch(
+  '/todos/:id/done',
+  checksExistsUserAccount,
+  checkExistsUserTodo,
+  (request, response) => {
+    const { todo } = request
+
+    todo.done = true
 
   return response.status(201).send()
-})
+  }
+)
 
 app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
   // Complete aqui
