@@ -1,52 +1,59 @@
-const express = require("express");
-const cors = require("cors");
+const express = require('express')
+const cors = require('cors')
 
-const { v4: uuidv4 } = require("uuid");
+const { v4: uuidv4 } = require('uuid')
 
-const app = express();
+const app = express()
 
-app.use(cors());
-app.use(express.json());
+app.use(cors())
+app.use(express.json())
 
-const users = [];
+const users = []
 
 function checksExistsUserAccount(request, response, next) {
-  // Complete aqui
+  const { username } = request.headers
+
+  const user = users.find((user) => user.username === username)
+
+  if (!user) {
+    return response.status(404).json({ error: 'User not found' })
+  }
+
+  request.user = user
+
+  return next()
 }
 
-app.post("/users", (request, response) => {
-  const { name, username } = request.body;
+app.post('/users', (request, response) => {
+  const { name, username } = request.body
 
   const user = {
     id: uuidv4(),
     name,
     username,
-    todos: []
+    todos: [],
   }
 
   users.push(user)
   return response.json(user)
-    
-});
+})
 
-app.get("/todos", checksExistsUserAccount, (request, response) => {
+app.get('/todos', checksExistsUserAccount, (request, response) => {})
+
+app.post('/todos', checksExistsUserAccount, (request, response) => {
   // Complete aqui
-});
+})
 
-app.post("/todos", checksExistsUserAccount, (request, response) => {
+app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
   // Complete aqui
-});
+})
 
-app.put("/todos/:id", checksExistsUserAccount, (request, response) => {
+app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
   // Complete aqui
-});
+})
 
-app.patch("/todos/:id/done", checksExistsUserAccount, (request, response) => {
+app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
   // Complete aqui
-});
+})
 
-app.delete("/todos/:id", checksExistsUserAccount, (request, response) => {
-  // Complete aqui
-});
-
-module.exports = app;
+module.exports = app
